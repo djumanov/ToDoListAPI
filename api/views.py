@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.http import HttpRequest, JsonResponse
 from django.views import View
 from base64 import b64decode
@@ -84,3 +85,39 @@ class GetTaskByIdView(View):
                 tasks_json = [task.to_json() for task in tasks]
                 return JsonResponse({'tasks': tasks_json})
             return JsonResponse({'error': 'bad request'})
+
+
+class AddTaskView(View):
+    '''create task'''
+
+    def post(self, request: HttpRequest) -> JsonResponse:
+        '''create task
+        
+        Agrs:
+            request (HttpRequest): HttpRequest object
+            id (int): task id
+            
+        Returns:
+            JsonResponse: JsonResponse object
+        '''
+        auth_header = request.headers.get('Authorization')
+        if auth_header:
+            username, passwrod = decode_auth(auth_header)
+            user = authenticate(username=username, password=passwrod)
+            if user is not None:
+                user = User.objects.get(username=username)
+                title = request.POST.get('title')
+                deudate = request.POST.get('duedate')
+                if title and deudate:
+                    task = Task.objects.create(
+                        title=title,
+                        description=request.POST.get('description', ''),
+                        duedate=datetime.strptime(deudate, '%Y-%m-%dT%H:%M:%SZ'),
+                        importance=request.POST.get('importance', 0),
+                        user=user
+                    )
+                    # task.save()
+                    return JsonResponse({'task': task.to_json()})
+                return JsonResponse({'error': 'title and duedate are required'})
+            return JsonResponse({'error': 'user not registred'})
+        return JsonResponse({'error': 'bad request'})
