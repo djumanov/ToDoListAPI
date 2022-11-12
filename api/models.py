@@ -21,5 +21,18 @@ class Task(models.Model):
     )
     user = models.ForeignKey(to=User, on_delete=models.CASCADE)
 
+
+    def to_json(self) -> dict:
+        return {
+            'title': self.title,
+            'description': self.description,
+            'is_completed': self.is_completed,
+            'created_at': self.created_at,
+            'updated_at': self.updated_at,
+            'duedate': self.duedate,
+            'importance': self.importance
+        }
+
+
     def __str__(self):
         return self.title
