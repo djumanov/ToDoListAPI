@@ -124,7 +124,6 @@ class AddTaskView(View):
         return JsonResponse({'error': 'bad request'})
 
 
-
 class EditTaskView(View):
     '''update task'''
 
@@ -185,7 +184,8 @@ class DoneTaskView(View):
             if user is not None:
                 try:
                     task: Task = Task.objects.get(id=id)
-                    task.is_completed = True
+                    if task.is_completed: task.is_completed = False
+                    else: task.is_completed = True
                     task.save()
                     return JsonResponse({'task': task.to_json()})
                 except ObjectDoesNotExist:
