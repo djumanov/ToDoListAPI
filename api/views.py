@@ -5,6 +5,7 @@ from base64 import b64decode
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from .models import Task
+from django.core.exceptions import ObjectDoesNotExist
 
 
 def decode_auth(auth_h: str) -> tuple[str]:
@@ -116,8 +117,50 @@ class AddTaskView(View):
                         importance=request.POST.get('importance', 0),
                         user=user
                     )
-                    # task.save()
+                    task.save()
                     return JsonResponse({'task': task.to_json()})
                 return JsonResponse({'error': 'title and duedate are required'})
+            return JsonResponse({'error': 'user not registred'})
+        return JsonResponse({'error': 'bad request'})
+
+
+
+class EditTaskView(View):
+    '''update task'''
+
+    def post(self, request: HttpRequest, id: int) -> JsonResponse:
+        '''create task
+        
+        Agrs:
+            request (HttpRequest): HttpRequest object
+            id (int): task id
+            
+        Returns:
+            JsonResponse: JsonResponse object
+        '''
+        auth_header = request.headers.get('Authorization')
+        if auth_header:
+            username, passwrod = decode_auth(auth_header)
+            user = authenticate(username=username, password=passwrod)
+            if user is not None:
+                user = User.objects.get(username=username)
+                try:
+                    task: Task = Task.objects.get(id=id)
+                    title = request.POST.get('title')
+                    if title:
+                        task.title = title
+                    description = request.POST.get('description')
+                    if description:
+                        task.description = description
+                    deudate = request.POST.get('duedate')
+                    if deudate:
+                        task.duedate = datetime.strptime(deudate, '%Y-%m-%dT%H:%M:%SZ')
+                    importance = request.POST.get('importance')
+                    if importance:
+                        task.importance = importance
+                    task.save()
+                    return JsonResponse({'task': task.to_json()})
+                except ObjectDoesNotExist:
+                    return JsonResponse({'error': 'not available task'})
             return JsonResponse({'error': 'user not registred'})
         return JsonResponse({'error': 'bad request'})
