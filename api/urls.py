@@ -4,6 +4,7 @@ from .views import (
     GetTaskByIdView,
     AddTaskView,
     EditTaskView,
+    DoneTaskView,
 )
 
 
@@ -12,4 +13,5 @@ urlpatterns = [
     path('task/<int:id>', GetTaskByIdView.as_view()),
     path('add-task/', AddTaskView.as_view()),
     path('edit-task/<int:id>', EditTaskView.as_view()),
+    path('done-task/<int:id>', DoneTaskView.as_view()),
 ]

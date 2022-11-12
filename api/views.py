@@ -143,7 +143,6 @@ class EditTaskView(View):
             username, passwrod = decode_auth(auth_header)
             user = authenticate(username=username, password=passwrod)
             if user is not None:
-                user = User.objects.get(username=username)
                 try:
                     task: Task = Task.objects.get(id=id)
                     title = request.POST.get('title')
@@ -158,6 +157,35 @@ class EditTaskView(View):
                     importance = request.POST.get('importance')
                     if importance:
                         task.importance = importance
+                    task.save()
+                    return JsonResponse({'task': task.to_json()})
+                except ObjectDoesNotExist:
+                    return JsonResponse({'error': 'not available task'})
+            return JsonResponse({'error': 'user not registred'})
+        return JsonResponse({'error': 'bad request'})
+
+
+class DoneTaskView(View):
+    '''done task'''
+
+    def post(self, request: HttpRequest, id: int) -> JsonResponse:
+        '''done task
+        
+        Agrs:
+            request (HttpRequest): HttpRequest object
+            id (int): task id
+            
+        Returns:
+            JsonResponse: JsonResponse object
+        '''
+        auth_header = request.headers.get('Authorization')
+        if auth_header:
+            username, passwrod = decode_auth(auth_header)
+            user = authenticate(username=username, password=passwrod)
+            if user is not None:
+                try:
+                    task: Task = Task.objects.get(id=id)
+                    task.is_completed = True
                     task.save()
                     return JsonResponse({'task': task.to_json()})
                 except ObjectDoesNotExist:
