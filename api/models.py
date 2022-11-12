@@ -24,6 +24,7 @@ class Task(models.Model):
 
     def to_json(self) -> dict:
         return {
+            'id': self.id,
             'title': self.title,
             'description': self.description,
             'is_completed': self.is_completed,
