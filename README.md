@@ -9,3 +9,5 @@
 | POST | `api/add-task/` | create task|
 | POST | `api/edit-task/` | edit task|
 | POST | `api/done-task/<int:id>` | done task|
+| POST | `api/completed-tasks/<` | get all completed tasks|
+| POST | `api/incompleted-tasks/<` | get all incompleted tasks|

@@ -57,6 +57,67 @@ class GetAllTasksView(View):
             return JsonResponse({'error': 'bad request'})
 
 
+class GetAllCompletedTasksView(View):
+    '''Get all tasks View'''
+
+    def get(self, request: HttpRequest) -> JsonResponse:
+        '''GetAllTasksView's get mathod, get all tasks
+        
+        Agrs:
+            request (HttpRequest): HttpRequest object
+            
+        Returns:
+            JsonResponse: JsonResponse object
+        '''
+        # get authorization
+        auth_header = request.headers.get('Authorization')
+        #check auth
+        if auth_header:
+            #decode auth
+            username, password = decode_auth(auth_header)
+            # authenticate
+            user = authenticate(username=username, password=password)
+            #check authenticate
+            if user is not None:
+                #get user
+                user: User = User.objects.get(username=username)
+                tasks: list[Task] = Task.objects.filter(user=user).filter(is_completed=True).all()
+                tasks_json = [task.to_json() for task in tasks]
+                return JsonResponse({'tasks': tasks_json})
+            return JsonResponse({'error': 'bad request'})
+
+
+class GetAllInCompletedTasksView(View):
+    '''Get all tasks View'''
+
+    def get(self, request: HttpRequest) -> JsonResponse:
+        '''GetAllTasksView's get mathod, get all tasks
+        
+        Agrs:
+            request (HttpRequest): HttpRequest object
+            
+        Returns:
+            JsonResponse: JsonResponse object
+        '''
+        # get authorization
+        auth_header = request.headers.get('Authorization')
+        #check auth
+        if auth_header:
+            #decode auth
+            username, password = decode_auth(auth_header)
+            # authenticate
+            user = authenticate(username=username, password=password)
+            #check authenticate
+            if user is not None:
+                #get user
+                user: User = User.objects.get(username=username)
+                tasks: list[Task] = Task.objects.filter(user=user).filter(is_completed=False).all()
+                tasks_json = [task.to_json() for task in tasks]
+                return JsonResponse({'tasks': tasks_json})
+            return JsonResponse({'error': 'bad request'})
+
+
+
 class GetTaskByIdView(View):
     '''get task by id'''
 
