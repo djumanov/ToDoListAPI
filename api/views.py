@@ -204,7 +204,8 @@ class EditTaskView(View):
             user = authenticate(username=username, password=passwrod)
             if user is not None:
                 try:
-                    task: Task = Task.objects.get(id=id)
+                    user: User = User.objects.get(username=username)
+                    task: Task = Task.objects.filter(user=user).get(id=id)
                     title = request.POST.get('title')
                     if title:
                         task.title = title
@@ -244,7 +245,8 @@ class DoneTaskView(View):
             user = authenticate(username=username, password=passwrod)
             if user is not None:
                 try:
-                    task: Task = Task.objects.get(id=id)
+                    user: User = User.objects.get(username=username)
+                    task: Task = Task.objects.filter(user=user).get(id=id)
                     if task.is_completed: task.is_completed = False
                     else: task.is_completed = True
                     task.save()
